@@ -60,9 +60,12 @@ export default function SearchPlant() {
       </div>
 
       <div className="mt-6">
-        <p>
-          Or you can <span className="text-blue-500 cursor-pointer" onClick={() => navigate('/identify-plant')}>use the plant identifier</span>
-        </p>
+      <p
+        className="text-blue-500 text-sm underline text-center cursor-pointer mt-4"
+        onClick={() => navigate('/plant-identifier')}
+        >
+        or you can <em>use the plant identifier</em>
+      </p>
       </div>
     </div>
   );

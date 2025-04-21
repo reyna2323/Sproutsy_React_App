@@ -12,6 +12,11 @@ import AddPlant from './pages/AddPlant';
 import ResetPrefs from './pages/ResetPrefs';
 import Explore from './pages/Explore';
 import SearchPlant from './pages/SearchPlant';
+import AddPlantDetails from './pages/AddPlantDetails';
+import PlantSaved from './pages/PlantSaved';
+import DefineLocation from './pages/DefineLocation';
+import PlantIdentifier from './pages/PlantIdentifier';
+
 
 
 // Import BottomNav
@@ -35,6 +40,10 @@ function AppWrapper() {
         <Route path="/reset" element={<ResetPrefs />} />
         <Route path="/explore" element={<Explore />} />
         <Route path="/search-plant" element={<SearchPlant />} />
+        <Route path="/add-plant-details" element={<AddPlantDetails />} />
+        <Route path="/plant-saved" element={<PlantSaved />} />
+        <Route path="/define-location" element={<DefineLocation />} />
+        <Route path="/plant-identifier" element={<PlantIdentifier />} />
       </Routes>
 
       {!hideNavPaths.includes(location.pathname) && <BottomNav />}
