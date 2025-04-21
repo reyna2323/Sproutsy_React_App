@@ -9,6 +9,8 @@ import Preferences from './pages/Preferences';
 import Home from './pages/Home';
 import GardenPlot from './pages/GardenPlot';
 import AddPlant from './pages/AddPlant';
+import ResetPrefs from './pages/ResetPrefs';
+import Explore from './pages/Explore';
 
 // Import BottomNav
 import BottomNav from './components/BottomNav';
@@ -28,6 +30,8 @@ function AppWrapper() {
         <Route path="/home" element={<Home />} />
         <Route path="/garden-plot" element={<GardenPlot />} />
         <Route path="/add-plant" element={<AddPlant />} />
+        <Route path="/reset" element={<ResetPrefs />} />
+        <Route path="/explore" element={<Explore />} />
       </Routes>
 
       {!hideNavPaths.includes(location.pathname) && <BottomNav />}
