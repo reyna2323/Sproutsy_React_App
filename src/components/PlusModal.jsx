@@ -1,21 +1,67 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 export default function PlusModal({ isOpen, onClose }) {
   const [step, setStep] = useState(1);
   const [location, setLocation] = useState(null);
+  const [action, setAction] = useState(null);
+  const navigate = useNavigate();
 
   const handleLocation = (loc) => {
     setLocation(loc);
     setStep(2);
   };
 
-  const handleAction = (action) => {
-    alert(`${action} (${location}) selected!`);
-    // You can navigate to real routes here later
-    onClose();
+  const handleAction = (selectedAction) => {
+    setAction(selectedAction);
+
+    if (selectedAction === 'Save new plant') {
+      onClose();
+      setTimeout(() => {
+        navigate('/search-plant');
+      }, 200);
+    } else {
+      alert(`${selectedAction} (${location}) selected!`);
+      onClose();
+    }
+
     setStep(1);
     setLocation(null);
   };
+
+  const renderIndoorActions = () => (
+    <>
+      <button
+        className="bg-green-500 text-white w-full py-2 mb-3 rounded"
+        onClick={() => handleAction('Find new plant')}
+      >
+        Find New Plant
+      </button>
+      <button
+        className="bg-green-500 text-white w-full py-2 rounded"
+        onClick={() => handleAction('Save new plant')}
+      >
+        Save New Plant
+      </button>
+    </>
+  );
+
+  const renderOutdoorActions = () => (
+    <>
+      <button
+        className="bg-green-500 text-white w-full py-2 mb-3 rounded"
+        onClick={() => handleAction('Plan new plot')}
+      >
+        Plan New Plot
+      </button>
+      <button
+        className="bg-green-500 text-white w-full py-2 rounded"
+        onClick={() => handleAction('Save new plot')}
+      >
+        Save New Plot
+      </button>
+    </>
+  );
 
   if (!isOpen) return null;
 
@@ -43,38 +89,8 @@ export default function PlusModal({ isOpen, onClose }) {
           </>
         ) : (
           <>
-            {location === 'Indoor' && (
-              <>
-                <button
-                  className="bg-green-500 text-white w-full py-2 mb-3 rounded"
-                  onClick={() => handleAction('Find new plant')}
-                >
-                  Find New Plant
-                </button>
-                <button
-                  className="bg-green-500 text-white w-full py-2 rounded"
-                  onClick={() => handleAction('Save new plant')}
-                >
-                  Save New Plant
-                </button>
-              </>
-            )}
-            {location === 'Outdoor' && (
-              <>
-                <button
-                  className="bg-green-500 text-white w-full py-2 mb-3 rounded"
-                  onClick={() => handleAction('Plan new plot')}
-                >
-                  Plan New Plot
-                </button>
-                <button
-                  className="bg-green-500 text-white w-full py-2 rounded"
-                  onClick={() => handleAction('Save new plot')}
-                >
-                  Save New Plot
-                </button>
-              </>
-            )}
+            {location === 'Indoor' && renderIndoorActions()}
+            {location === 'Outdoor' && renderOutdoorActions()}
           </>
         )}
 
