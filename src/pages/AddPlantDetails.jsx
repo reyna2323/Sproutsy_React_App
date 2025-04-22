@@ -97,10 +97,10 @@ export default function AddPlantDetails() {
           className="w-full p-2 border rounded"
         />
         <p
-          className="text-blue-500 text-sm mt-1 cursor-pointer"
-          onClick={() => navigate('/measure-plant')}
-        >
-          or you can <em>use our built-in plant measurer</em>
+            className="text-blue-500 text-sm mt-1 cursor-pointer"
+            onClick={() => navigate('/measure-plant')}
+            >
+            or you can <em>use our built-in plant measurer</em>
         </p>
       </div>
 

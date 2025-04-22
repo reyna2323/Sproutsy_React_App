@@ -16,19 +16,38 @@ import AddPlantDetails from './pages/AddPlantDetails';
 import PlantSaved from './pages/PlantSaved';
 import DefineLocation from './pages/DefineLocation';
 import PlantIdentifier from './pages/PlantIdentifier';
+import MeasurePlant from './pages/MeasurePlant';
+import PlanPlotStart from './pages/PlanPlotStart';
+import ManualPlot from './pages/ManualPlot';
+import CustomPlotDraw from './pages/CustomPlotDraw';
+import PlotPlants from './pages/PlotPlants';
+import PlotPreferences from './pages/PlotPreferences';
+import PlotConditions from './pages/PlotConditions';
+import PlotLoading from './pages/PlotLoading';
+import PlotLayoutDetails from './pages/PlotLayoutDetails';
+import PlantDetail from './pages/PlantDetail';
+import PlotLayoutGeneration from './pages/PlotLayoutGeneration';
+import FinalizeLayout from './pages/FinalizeLayout';
+import PlotLayoutView from './pages/PlotLayoutView';
+import Profile from './pages/Profile';
+import Plants from './pages/Plants';
 
-
-
-// Import BottomNav
+// Import layout components
 import BottomNav from './components/BottomNav';
+import TopBar from './components/TopBar';
 
-// Helper wrapper for routing with layout
+// Wrapper for layout logic
 function AppWrapper() {
   const location = useLocation();
   const hideNavPaths = ['/', '/signup', '/tutorial', '/preferences'];
+  const hideTopBarPaths = [...hideNavPaths, '/profile'];
 
   return (
     <>
+      {/* Top bar logic */}
+      {!hideTopBarPaths.includes(location.pathname) && <TopBar />}
+
+      {/* Routes */}
       <Routes>
         <Route path="/" element={<Splash />} />
         <Route path="/signup" element={<SignUp />} />
@@ -44,13 +63,39 @@ function AppWrapper() {
         <Route path="/plant-saved" element={<PlantSaved />} />
         <Route path="/define-location" element={<DefineLocation />} />
         <Route path="/plant-identifier" element={<PlantIdentifier />} />
+        <Route path="/measure-plant" element={<MeasurePlant />} />
+        <Route path="/plan-plot-start" element={<PlanPlotStart />} />
+        <Route path="/manual-plot" element={<ManualPlot />} />
+        <Route path="/custom-plot" element={<CustomPlotDraw />} />
+        <Route path="/plot-plants" element={<PlotPlants />} />
+        <Route path="/plot-preferences" element={<PlotPreferences />} />
+        <Route path="/plot-conditions" element={<PlotConditions />} />
+        <Route path="/plot-loading" element={<PlotLoading />} />
+        <Route path="/plot-layout-:layoutId" element={<PlotLayoutDetails />} />
+        <Route path="/plant-detail/:plantName" element={<PlantDetail />} />
+        <Route
+          path="/plot-layout-generation"
+          element={
+            <PlotLayoutGeneration
+              plotWidth={600}
+              plotHeight={400}
+              plants={['Tomato', 'Basil', 'Rosemary']}
+            />
+          }
+        />
+        <Route path="/finalize-layout" element={<FinalizeLayout />} />
+        <Route path="/plot-layout-final" element={<PlotLayoutView />} />
+        <Route path="/profile" element={<Profile />} />
+        <Route path="/plants" element={<Plants />} />
       </Routes>
 
+      {/* Bottom nav logic */}
       {!hideNavPaths.includes(location.pathname) && <BottomNav />}
     </>
   );
 }
 
+// Main App
 function App() {
   return (
     <Router>

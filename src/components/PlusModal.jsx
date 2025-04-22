@@ -14,19 +14,24 @@ export default function PlusModal({ isOpen, onClose }) {
 
   const handleAction = (selectedAction) => {
     setAction(selectedAction);
-
-    if (selectedAction === 'Save new plant') {
-      onClose();
-      setTimeout(() => {
-        navigate('/search-plant');
-      }, 200);
-    } else {
-      alert(`${selectedAction} (${location}) selected!`);
-      onClose();
-    }
-
+    onClose();
     setStep(1);
     setLocation(null);
+
+    const routeMap = {
+      'Save new plant': '/search-plant',
+      'Find new plant': '/search-plant',
+      'Plan new plot': '/plan-plot-start',
+      'Save new plot': '/save-plot', // You'll build this screen later
+    };
+
+    if (routeMap[selectedAction]) {
+      setTimeout(() => {
+        navigate(routeMap[selectedAction]);
+      }, 200);
+    } else {
+      alert(`${selectedAction} selected but not mapped.`);
+    }
   };
 
   const renderIndoorActions = () => (
