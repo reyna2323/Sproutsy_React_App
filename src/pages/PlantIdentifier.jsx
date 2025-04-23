@@ -27,6 +27,8 @@ export default function PlantIdentifier() {
   const navigate = useNavigate();
   const [plantData, setPlantData] = useState(null);
   const [scanning, setScanning] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+  const [confidenceThreshold, setConfidenceThreshold] = useState(0.6);
 
   const videoConstraints = {
     facingMode: 'environment',
@@ -41,6 +43,13 @@ export default function PlantIdentifier() {
 
       const result = await identifyPlantWithPlantId(base64);
       const suggestion = result?.suggestions?.[0];
+      const probability = suggestion?.probability || 0;
+
+      if (!suggestion || !suggestion.plant_name || probability < confidenceThreshold) {
+        setErrorMessage("We couldn't confidently detect a plant. Try again with a clearer image.");
+        setScanning(false);
+        return;
+      }
 
       const plant = {
         name: formatCommonName(suggestion?.plant_details?.common_names?.[0] || suggestion?.plant_name || "Unknown Plant"),
@@ -55,6 +64,7 @@ export default function PlantIdentifier() {
         image: imageSrc,
       };
 
+      setErrorMessage("");
       setPlantData(plant);
     } catch (err) {
       console.error("Plant identification failed:", err);
@@ -62,7 +72,7 @@ export default function PlantIdentifier() {
     } finally {
       setScanning(false);
     }
-  }, []);
+  }, [confidenceThreshold]);
 
   const handleConfirm = () => {
     localStorage.setItem('selected-plant', JSON.stringify(plantData));
@@ -79,6 +89,25 @@ export default function PlantIdentifier() {
             <LoadingShimmer />
           ) : (
             <>
+              {errorMessage && (
+                <div className="text-center text-red-600 mb-4">
+                  <p>{errorMessage}</p>
+                </div>
+              )}
+              <div className="mb-4 w-full max-w-md">
+                <label className="block text-sm text-gray-700 mb-1">
+                  How sure should we be before showing a result? ({Math.round(confidenceThreshold * 100)}% match)
+                </label>
+                <input
+                  type="range"
+                  min="0.5"
+                  max="0.95"
+                  step="0.01"
+                  value={confidenceThreshold}
+                  onChange={(e) => setConfidenceThreshold(parseFloat(e.target.value))}
+                  className="w-full"
+                />
+              </div>
               <Webcam
                 audio={false}
                 ref={webcamRef}
@@ -109,7 +138,7 @@ export default function PlantIdentifier() {
           <p>📅 Season: {plantData.season}</p>
           <p>☀️ Sunlight: {plantData.sunlight}</p>
           <p>💧 Watering: {plantData.watering}</p>
-          <p>🪴 Uses: {plantData.uses}</p>
+          <p>🪴 Info: {plantData.uses}</p>
 
           <div className="mt-4 flex justify-center gap-4">
             <button
