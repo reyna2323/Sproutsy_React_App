@@ -1,6 +1,7 @@
 import React, { useState, useRef, useCallback } from 'react';
 import Webcam from 'react-webcam';
 import { useNavigate } from 'react-router-dom';
+import { identifyPlantWithPlantId } from '../utils/api';
 
 export default function PlantIdentifier() {
   const webcamRef = useRef(null);
@@ -12,25 +13,35 @@ export default function PlantIdentifier() {
     facingMode: 'environment',
   };
 
-  const scanPlant = useCallback(() => {
+  const scanPlant = useCallback(async () => {
     setScanning(true);
-    const imageSrc = webcamRef.current.getScreenshot();
-    
-    // Simulated plant recognition result
-    const mockResult = {
-      name: 'Golden Pothos',
-      type: 'Indoor Vine',
-      season: 'All year',
-      sunlight: 'Partial',
-      watering: 'Moderate',
-      uses: 'Air purification',
-      image: imageSrc,
-    };
 
-    setTimeout(() => {
-      setPlantData(mockResult);
+    try {
+      const imageSrc = webcamRef.current.getScreenshot();
+      const base64 = imageSrc.split(',')[1];
+
+      const result = await identifyPlantWithPlantId(base64);
+      const suggestion = result?.suggestions?.[0];
+
+      const plant = {
+        name: suggestion?.plant_name || "Unknown Plant",
+        type: suggestion?.plant_details?.taxonomy?.genus || "Unknown",
+        season: "N/A",
+        sunlight: suggestion?.plant_details?.sunlight?.[0] || "Unknown",
+        watering: suggestion?.plant_details?.watering || "Unknown",
+        uses:
+          suggestion?.plant_details?.wiki_description?.value?.split('.')[0] ||
+          "No info available",
+        image: imageSrc,
+      };
+
+      setPlantData(plant);
+    } catch (err) {
+      console.error("Plant identification failed:", err);
+      alert("Sorry, we couldn't identify that plant. Please try again.");
+    } finally {
       setScanning(false);
-    }, 2000);
+    }
   }, []);
 
   const handleConfirm = () => {

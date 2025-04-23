@@ -31,6 +31,8 @@ import FinalizeLayout from './pages/FinalizeLayout';
 import PlotLayoutView from './pages/PlotLayoutView';
 import Profile from './pages/Profile';
 import Plants from './pages/Plants';
+import Login from './pages/Login';
+
 
 // Import layout components
 import BottomNav from './components/BottomNav';
@@ -39,7 +41,8 @@ import TopBar from './components/TopBar';
 // Wrapper for layout logic
 function AppWrapper() {
   const location = useLocation();
-  const hideNavPaths = ['/', '/signup', '/tutorial', '/preferences'];
+
+  const hideNavPaths = ['/', '/signup', '/tutorial', '/preferences', '/login'];
   const hideTopBarPaths = [...hideNavPaths, '/profile'];
 
   return (
@@ -87,6 +90,7 @@ function AppWrapper() {
         <Route path="/plot-layout-final" element={<PlotLayoutView />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/plants" element={<Plants />} />
+        <Route path="/login" element={<Login />} />
       </Routes>
 
       {/* Bottom nav logic */}
