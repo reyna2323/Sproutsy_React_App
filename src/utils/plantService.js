@@ -13,8 +13,6 @@ export async function toggleFavoritePlant(plant) {
   return updated;
 }
 
-// src/utils/plantService.js
-
 export function savePlantForUser(plantData, userId) {
   const existingRaw = localStorage.getItem(`user-plants-${userId}`);
   const existing = existingRaw ? JSON.parse(existingRaw) : [];
@@ -34,7 +32,32 @@ export async function fetchPlantSuggestions(query) {
   const response = await fetch(`https://perenual.com/api/species-list?key=sk-6MvP68182f10946ed10233&q=${encodeURIComponent(query)}`);
   const data = await response.json();
   if (data && data.data) {
-    return data.data.map(p => p.common_name).filter(Boolean);
+    return data.data.map(p => ({
+      id: p.id,
+      common_name: p.common_name
+    })).filter(p => p.common_name);
   }
   return [];
+}
+
+export async function fetchPlantDetails(commonName) {
+  const response = await fetch(`https://perenual.com/api/species-list?key=sk-6MvP68182f10946ed10233&q=${encodeURIComponent(commonName)}`);
+  const data = await response.json();
+  if (data && data.data && data.data.length > 0) {
+    const plant = data.data[0];
+    return {
+      name: plant.common_name,
+      type: plant.type || 'Unknown',
+      watering: plant.watering || 'Unknown',
+      sunlight: Array.isArray(plant.sunlight) ? plant.sunlight.join(', ') : plant.sunlight || 'Unknown',
+      use: plant.use || '—'
+    };
+  }
+  return {
+    name: commonName,
+    type: 'Unknown',
+    watering: 'Unknown',
+    sunlight: 'Unknown',
+    use: '—'
+  };
 }
