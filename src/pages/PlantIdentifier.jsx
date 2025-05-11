@@ -100,7 +100,7 @@ export default function PlantIdentifier() {
                 </label>
                 <input
                   type="range"
-                  min="0.5"
+                  min="0.05"
                   max="0.95"
                   step="0.01"
                   value={confidenceThreshold}

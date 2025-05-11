@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { savePlantForUser } from '../utils/plantService';
 
 export default function AddPlantDetails() {
   const navigate = useNavigate();
@@ -12,7 +13,15 @@ export default function AddPlantDetails() {
   useEffect(() => {
     const saved = localStorage.getItem('selected-plant');
     if (saved) {
-      setPlant(JSON.parse(saved));
+      const parsed = JSON.parse(saved);
+      setPlant(parsed);
+      setPhoto(parsed.image || null);         // pre-fill scanned image
+      setCustomName(parsed.name || '');       // pre-fill scanned name
+    }
+    const measured = localStorage.getItem('measured-height');
+    if (measured) {
+      setHeight(measured);
+      localStorage.removeItem('measured-height'); // clean up
     }
   }, []);
 
@@ -23,7 +32,7 @@ export default function AddPlantDetails() {
     }
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     const knownLocations = ['windowsill', 'kitchen', 'bedroom'];
     const finalPlant = {
       basePlant: plant,
@@ -32,16 +41,22 @@ export default function AddPlantDetails() {
       location,
       height,
     };
-
+  
     if (!knownLocations.includes(location.toLowerCase())) {
       localStorage.setItem('pending-location', location);
       localStorage.setItem('pending-plant', JSON.stringify(finalPlant));
       navigate('/define-location');
       return;
     }
-
-    localStorage.setItem('saved-plant', JSON.stringify(finalPlant));
-    navigate('/plant-saved');
+  
+    try {
+      await savePlantForUser(finalPlant);
+      localStorage.setItem('saved-plant', JSON.stringify(finalPlant)); // 👈 add this
+      navigate('/plant-saved');
+    } catch (err) {
+      console.error("Failed to save plant:", err);
+      alert("There was an issue saving your plant. Please try again.");
+    }
   };
 
   return (

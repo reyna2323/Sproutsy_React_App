@@ -2,6 +2,7 @@
 import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
 import { getStorage } from "firebase/storage";
+import { getFirestore } from "firebase/firestore";
 
 // Optional: import { getAnalytics } from "firebase/analytics";
 
@@ -23,3 +24,4 @@ const app = initializeApp(firebaseConfig);
 // ✅ These are required for auth + image uploads
 export const auth = getAuth(app);
 export const storage = getStorage(app);
+export const db = getFirestore(app);

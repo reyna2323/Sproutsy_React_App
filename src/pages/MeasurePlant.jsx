@@ -5,21 +5,27 @@ import { useNavigate } from 'react-router-dom';
 export default function MeasurePlant() {
   const webcamRef = useRef(null);
   const navigate = useNavigate();
-  const [measuring, setMeasuring] = useState(false);
+  const [points, setPoints] = useState([]);
   const [height, setHeight] = useState(null);
 
   const videoConstraints = {
     facingMode: 'environment',
   };
 
-  const startMeasurement = () => {
-    setMeasuring(true);
-    // Simulate plant height measurement
-    setTimeout(() => {
-      const simulatedHeight = Math.floor(Math.random() * (100 - 30 + 1) + 30); // Random height between 30 and 100 inches
-      setHeight(simulatedHeight);
-      setMeasuring(false);
-    }, 2000); // Simulate 2 seconds to measure
+  const handleClick = (e) => {
+    const rect = e.target.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+
+    if (points.length < 2) {
+      setPoints([...points, { x, y }]);
+    }
+
+    if (points.length === 1) {
+      const dy = Math.abs(points[0].y - y);
+      const estimatedHeight = Math.round((dy / rect.height) * 80); // Assuming 80 inches max height
+      setHeight(estimatedHeight);
+    }
   };
 
   const handleConfirm = () => {
@@ -28,8 +34,14 @@ export default function MeasurePlant() {
       const parsedPlant = JSON.parse(plantData);
       parsedPlant.height = height;
       localStorage.setItem('saved-plant', JSON.stringify(parsedPlant));
-      navigate('/plant-saved');
+      localStorage.setItem('measured-height', height);
+      navigate('/add-plant-details');
     }
+  };
+
+  const reset = () => {
+    setPoints([]);
+    setHeight(null);
   };
 
   return (
@@ -38,35 +50,52 @@ export default function MeasurePlant() {
 
       {!height ? (
         <div className="flex flex-col items-center">
-          <Webcam
-            audio={false}
-            ref={webcamRef}
-            screenshotFormat="image/jpeg"
-            videoConstraints={videoConstraints}
-            className="rounded w-full max-w-md mb-4"
-          />
-          <button
-            onClick={startMeasurement}
-            disabled={measuring}
-            className="bg-green-600 text-white py-2 px-4 rounded"
+          <div
+            onClick={handleClick}
+            className="relative w-full max-w-md"
           >
-            {measuring ? 'Measuring...' : 'Start Measurement'}
-          </button>
+            <Webcam
+              audio={false}
+              ref={webcamRef}
+              screenshotFormat="image/jpeg"
+              videoConstraints={videoConstraints}
+              className="rounded w-full"
+            />
+            {points.map((p, i) => (
+              <div
+                key={i}
+                className="absolute w-4 h-4 bg-green-500 rounded-full"
+                style={{ left: p.x - 8, top: p.y - 8 }}
+              />
+            ))}
+          </div>
+          <p className="text-sm text-gray-600 mt-2">
+            Tap the bottom of your plant, then the top to measure.
+          </p>
         </div>
       ) : (
         <div className="text-center">
           <p className="text-lg font-semibold mb-4">
             Your plant's height is approximately <strong>{height} inches</strong>.
           </p>
-
-          <button
-            onClick={handleConfirm}
-            className="bg-green-600 text-white py-2 px-6 rounded"
-          >
-            Confirm Height
-          </button>
+          <div className="flex justify-center gap-4">
+            <button
+              onClick={handleConfirm}
+              className="bg-green-600 text-white py-2 px-6 rounded"
+            >
+              Confirm Height
+            </button>
+            <button
+              onClick={reset}
+              className="text-red-500 underline text-sm"
+            >
+              Try Again
+            </button>
+          </div>
         </div>
       )}
+
+      {/* 🛠 NOTE: Replace this with AR-based measurement using ARKit/Viro in React Native later */}
     </div>
   );
 }
