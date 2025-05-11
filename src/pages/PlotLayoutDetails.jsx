@@ -1,39 +1,66 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+
+// These match the mock layouts from PlotLoading
+const mockLayouts = [
+  {
+    id: 1,
+    name: "Sunny Rows",
+    plants: ['Tomato', 'Basil', 'Rosemary'],
+    image: '/images/layout1.jpg',
+  },
+  {
+    id: 2,
+    name: "Pollinator Patch",
+    plants: ['Lettuce', 'Carrot', 'Basil'],
+    image: '/images/layout2.jpg',
+  },
+  {
+    id: 3,
+    name: "Circle Garden",
+    plants: ['Rosemary', 'Tomato', 'Lettuce'],
+    image: '/images/layout3.jpg',
+  },
+];
 
 export default function PlotLayoutDetails() {
-  const navigate = useNavigate();
-  const { pathname } = useLocation();
-  const layoutId = pathname.split('-')[2];
   const [layout, setLayout] = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
-    // Simulate fetching data based on the layoutId
-    const selectedLayout = mockLayouts.find((layout) => layout.id === parseInt(layoutId));
-    setLayout(selectedLayout);
-  }, [layoutId]);
+    const selectedId = localStorage.getItem('selected-layout-id');
+    const found = mockLayouts.find((l) => l.id === parseInt(selectedId));
+    setLayout(found);
+  }, []);
 
-  const handleFinalization = () => {
-    navigate('/finalize-plot');
+  const handleNext = () => {
+    navigate('/finalize-layout');
   };
 
-  if (!layout) return <div>Loading...</div>;
+  if (!layout) {
+    return <div className="p-6 text-center">Loading layout details...</div>;
+  }
 
   return (
     <div className="p-6">
-      <h1 className="text-xl font-bold mb-4 text-center">Layout {layout.id} Details</h1>
+      <h1 className="text-xl font-bold text-center mb-4">{layout.name}</h1>
+
       <img
         src={layout.image}
-        alt={`Garden layout ${layout.id}`}
-        className="w-full h-96 object-cover mb-4"
+        alt={layout.name}
+        className="w-full h-64 object-cover rounded mb-4"
       />
-      <h2 className="font-semibold text-lg mb-2">Plants: {layout.plants.join(', ')}</h2>
-      <p className="text-gray-600">
-        This layout contains {layout.plants.length} plants: {layout.plants.join(', ')}.
-      </p>
+
+      <h2 className="text-lg font-semibold mb-2">Included Plants:</h2>
+      <ul className="text-sm list-disc list-inside text-gray-700 mb-6">
+        {layout.plants.map((plant, idx) => (
+          <li key={idx}>{plant}</li>
+        ))}
+      </ul>
+
       <button
-        onClick={handleFinalization}
-        className="bg-green-500 text-white py-2 px-6 rounded mt-4"
+        onClick={handleNext}
+        className="bg-green-600 text-white w-full py-2 rounded text-lg"
       >
         Finalize Garden Plot
       </button>

@@ -1,88 +1,100 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Swiper, SwiperSlide } from 'swiper/react';
-import { Navigation } from 'swiper/modules'; // ✅ Import navigation module
-import 'swiper/css';
-import 'swiper/css/navigation';
-import 'swiper/css/pagination';
-
-// Simulating layout data for three garden layouts
-const mockLayouts = [
-  {
-    id: 1,
-    plants: ['Tomato', 'Basil', 'Rosemary'],
-    image: '/images/layout1.jpg', // Replace with actual diagram images later
-  },
-  {
-    id: 2,
-    plants: ['Lettuce', 'Carrot', 'Basil'],
-    image: '/images/layout2.jpg', // Replace with actual diagram images later
-  },
-  {
-    id: 3,
-    plants: ['Rosemary', 'Tomato', 'Lettuce'],
-    image: '/images/layout3.jpg', // Replace with actual diagram images later
-  },
-];
+import { getFavoritePlants } from '../utils/plantService';
 
 export default function PlotLoading() {
   const navigate = useNavigate();
-  const [layouts, setLayouts] = useState(null);
+  const [layouts, setLayouts] = useState([]);
 
   useEffect(() => {
-    const fetchLayouts = () => {
-      setTimeout(() => {
-        setLayouts(mockLayouts); // Simulate API fetch
-      }, 3000);
-    };
-    fetchLayouts();
+    const inventory = JSON.parse(localStorage.getItem('plot-inventory') || '[]');
+    const plot = JSON.parse(localStorage.getItem('manual-plot') || '{}');
+    const width = plot.width || plot.side || (plot.radius ? plot.radius * 2 : 10);
+    const height = plot.height || plot.side || (plot.radius ? plot.radius * 2 : 10);
+
+    const plantList = inventory.length > 0 ? inventory : [];
+
+    // generate 3 layouts
+    const generated = Array.from({ length: 3 }, (_, layoutIndex) => {
+      let layoutPlants = [];
+      let x = 0;
+      let y = 0;
+      let rowHeight = 0;
+
+      plantList.forEach((plant, i) => {
+        const spacing =
+          parseInt(plant?.watering_general_benchmark?.value) ||
+          parseInt(plant?.spacing?.minimum) ||
+          18; // fallback
+
+        const plantCopy = { ...plant, x, y };
+        layoutPlants.push(plantCopy);
+
+        x += spacing;
+        rowHeight = Math.max(rowHeight, spacing);
+
+        if (x + spacing > width * 12) {
+          x = 0;
+          y += rowHeight;
+          rowHeight = 0;
+        }
+      });
+
+      return {
+        id: layoutIndex + 1,
+        plants: layoutPlants,
+      };
+    });
+
+    setTimeout(() => {
+      setLayouts(generated);
+    }, 1000); // simulate loading
   }, []);
 
-  const handleLayoutSelect = (layoutId) => {
-    navigate(`/plot-layout-${layoutId}`);
+  const handleSelect = (layout) => {
+    localStorage.setItem('generated-layout', JSON.stringify(layout));
+    navigate('/plot-layout-view');
   };
 
-  if (!layouts) {
+  if (!layouts.length) {
     return (
-      <div className="p-6">
-        <h1 className="text-xl font-bold mb-4 text-center">Generating Garden Layouts...</h1>
-        <p className="text-center">Please wait while we generate your optimized garden plots.</p>
+      <div className="p-6 text-center">
+        <h1 className="text-xl font-bold mb-4">Generating Garden Layouts...</h1>
+        <p className="text-gray-600">Please wait while we generate your optimized plot.</p>
       </div>
     );
   }
 
   return (
-    <div className="p-6">
-      <h1 className="text-xl font-bold mb-4 text-center">Choose a Garden Layout</h1>
+    <div className="p-6 space-y-8">
+      <h1 className="text-xl font-bold text-center mb-4">Choose a Garden Layout</h1>
 
-      <Swiper
-        modules={[Navigation]} // ✅ Enable navigation module
-        navigation
-        spaceBetween={10}
-        slidesPerView={1}
-        loop
-        className="my-4"
-      >
-        {layouts.map((layout) => (
-          <SwiperSlide key={layout.id}>
-            <div className="flex flex-col items-center">
-              <img
-                src={layout.image}
-                alt={`Garden layout ${layout.id}`}
-                className="w-full h-96 object-cover mb-4"
-              />
-              <h2 className="font-semibold text-lg mb-2">Layout {layout.id}</h2>
-              <p className="text-gray-600">Plants: {layout.plants.join(', ')}</p>
-              <button
-                onClick={() => handleLayoutSelect(layout.id)}
-                className="bg-green-500 text-white py-2 px-6 rounded mt-4"
+      {layouts.map((layout) => (
+        <div key={layout.id} className="border p-4 rounded shadow-sm bg-white">
+          <h2 className="font-semibold mb-2">Layout {layout.id}</h2>
+          <div className="relative w-full h-64 bg-green-100 border rounded overflow-hidden">
+            {layout.plants.map((plant, idx) => (
+              <div
+                key={idx}
+                className="absolute w-6 h-6 text-[10px] bg-green-600 text-white rounded-full flex items-center justify-center shadow"
+                style={{
+                  left: `${plant.x}px`,
+                  top: `${plant.y}px`,
+                }}
               >
-                Select Layout
-              </button>
-            </div>
-          </SwiperSlide>
-        ))}
-      </Swiper>
+                {plant.common_name?.slice(0, 2).toUpperCase() || 'P'}
+              </div>
+            ))}
+          </div>
+
+          <button
+            onClick={() => handleSelect(layout)}
+            className="mt-4 bg-green-600 text-white px-4 py-2 rounded w-full"
+          >
+            Select This Layout
+          </button>
+        </div>
+      ))}
     </div>
   );
 }

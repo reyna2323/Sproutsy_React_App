@@ -1,23 +1,30 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-
-// Temporary plant list (we'll use real API later)
-const allPlants = [
-  { id: 1, name: 'Tomato' },
-  { id: 2, name: 'Basil' },
-  { id: 3, name: 'Carrot' },
-  { id: 4, name: 'Rosemary' },
-  { id: 5, name: 'Lettuce' },
-];
+import { fetchPlantsFromPerenual } from '../utils/api';
+import { getFavoritePlants } from '../utils/plantService';
 
 export default function PlotPlants() {
   const [search, setSearch] = useState('');
+  const [results, setResults] = useState([]);
   const [inventory, setInventory] = useState({});
+  const [favorites, setFavorites] = useState([]);
   const navigate = useNavigate();
 
-  const filtered = allPlants.filter((plant) =>
-    plant.name.toLowerCase().includes(search.toLowerCase())
-  );
+  useEffect(() => {
+    getFavoritePlants().then(setFavorites);
+  }, []);
+
+  useEffect(() => {
+    const delay = setTimeout(async () => {
+      if (search.length > 2) {
+        const data = await fetchPlantsFromPerenual(search);
+        setResults(data.slice(0, 10)); // limit results
+      } else {
+        setResults([]);
+      }
+    }, 400);
+    return () => clearTimeout(delay);
+  }, [search]); // Added 'search' to dependencies
 
   const addPlant = (plant) => {
     setInventory((prev) => ({
@@ -37,7 +44,7 @@ export default function PlotPlants() {
 
   return (
     <div className="p-6">
-      <h1 className="text-xl font-bold mb-4 text-center">Search Plants for This Plot</h1>
+      <h1 className="text-xl font-bold text-center mb-4">Search Plants for This Plot</h1>
 
       <input
         type="text"
@@ -47,33 +54,53 @@ export default function PlotPlants() {
         className="w-full p-2 border rounded mb-4"
       />
 
-      <div className="space-y-2">
-        {filtered.map((plant) => (
-          <div
-            key={plant.id}
-            className="flex justify-between items-center bg-gray-100 p-2 rounded"
-          >
-            <span>{plant.name}</span>
-            <button
-              onClick={() => addPlant(plant)}
-              className="bg-green-500 text-white px-3 py-1 rounded"
-            >
-              +
-            </button>
+      {results.length > 0 && (
+        <div className="space-y-2 mb-6">
+          {results.map((plant) => (
+            <div key={plant.id} className="flex justify-between items-center p-2 border rounded bg-white">
+              <div>
+                <p className="font-semibold">{plant.common_name}</p>
+                <p className="text-sm text-gray-600 italic">{plant.scientific_name?.[0]}</p>
+              </div>
+              <button
+                onClick={() => addPlant(plant)}
+                className="bg-green-500 text-white px-3 py-1 rounded"
+              >
+                +
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {favorites.length > 0 && (
+        <>
+          <h2 className="text-lg font-semibold mb-2">Or choose from your favorites</h2>
+          <div className="space-y-2 mb-6">
+            {favorites.map((plant) => (
+              <div key={plant.id} className="flex justify-between items-center p-2 border rounded bg-green-50">
+                <div>
+                  <p className="font-semibold">{plant.common_name}</p>
+                  <p className="text-sm text-gray-600 italic">{plant.scientific_name || '—'}</p>                </div>
+                <button
+                  onClick={() => addPlant(plant)}
+                  className="bg-green-600 text-white px-3 py-1 rounded"
+                >
+                  +
+                </button>
+              </div>
+            ))}
           </div>
-        ))}
-      </div>
+        </>
+      )}
 
       {Object.keys(inventory).length > 0 && (
         <>
-          <h2 className="text-lg font-semibold mt-6 mb-2">Selected Plants:</h2>
+          <h2 className="text-lg font-semibold mb-2">Selected Plants</h2>
           <div className="space-y-2">
             {Object.values(inventory).map((item) => (
-              <div
-                key={item.id}
-                className="flex justify-between items-center bg-green-50 p-2 rounded"
-              >
-                <span>{item.name}</span>
+              <div key={item.id} className="flex justify-between p-2 bg-green-100 rounded">
+                <span>{item.common_name}</span>
                 <span className="text-sm">Qty: {item.quantity}</span>
               </div>
             ))}

@@ -73,7 +73,7 @@ const ManualPlotEntry = () => {
     }
 
     localStorage.setItem('manual-plot', JSON.stringify(manualPlot));
-    navigate('/next-page');
+    navigate('/plot-plants');
   };
 
   useEffect(() => {

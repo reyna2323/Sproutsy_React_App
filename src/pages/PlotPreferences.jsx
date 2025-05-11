@@ -3,26 +3,26 @@ import { useNavigate } from 'react-router-dom';
 
 const categories = [
   { id: 'fruits', label: 'Fruits', desc: 'Produce sweet, edible seed-bearing structures.' },
-  { id: 'veggies', label: 'Veggies', desc: 'Nutritious edible plants grown for their roots, leaves, or stems.' },
+  { id: 'vegetables', label: 'Vegetables', desc: 'Nutritious plants grown for roots, leaves, or stems.' },
   { id: 'herbs', label: 'Herbs', desc: 'Add flavor, attract pollinators, and repel insects.' },
-  { id: 'flowers', label: 'Flowers', desc: 'Brighten gardens, attract pollinators, and add color.' },
-  { id: 'shrubs', label: 'Shrubs', desc: 'Woody plants that offer structure and privacy.' },
-  { id: 'trees', label: 'Trees', desc: 'Provide shade, fruit, and long-term garden benefits.' },
+  { id: 'flowers', label: 'Flowers', desc: 'Add beauty and attract pollinators.' },
+  { id: 'shrubs', label: 'Shrubs', desc: 'Woody plants that add structure or privacy.' },
+  { id: 'trees', label: 'Trees', desc: 'Tall perennials that provide shade or fruit.' },
 ];
 
 const lifeCycles = [
   { id: 'annual', label: 'Annual', desc: 'Live and die within one season.' },
-  { id: 'biennial', label: 'Biennial', desc: 'Grow in year one, bloom in year two, then die.' },
+  { id: 'biennial', label: 'Biennial', desc: 'Grow in year one, bloom in year two.' },
   { id: 'perennial', label: 'Perennial', desc: 'Return year after year once established.' },
 ];
 
 export default function PlotPreferences() {
-  const navigate = useNavigate();
   const [selectedTypes, setSelectedTypes] = useState([]);
   const [selectedCycles, setSelectedCycles] = useState([]);
   const [description, setDescription] = useState('');
+  const navigate = useNavigate();
 
-  const toggle = (id, list, setter) => {
+  const toggleSelection = (id, list, setter) => {
     if (list.includes(id)) {
       setter(list.filter((item) => item !== id));
     } else {
@@ -40,47 +40,55 @@ export default function PlotPreferences() {
   };
 
   return (
-    <div className="p-6">
-      <h1 className="text-xl font-bold mb-4 text-center">Garden Preferences</h1>
+    <div className="p-6 text-center">
+      <h1 className="text-xl font-bold mb-6">Garden Preferences</h1>
 
-      <h2 className="font-semibold mb-2">What else would you like to plant?</h2>
-      <div className="grid grid-cols-2 gap-2 mb-4">
-        {categories.map((item) => (
-          <button
-            key={item.id}
-            className={`p-2 border rounded text-sm ${
-              selectedTypes.includes(item.id) ? 'bg-green-500 text-white' : ''
-            }`}
-            onClick={() => {
-              toggle(item.id, selectedTypes, setSelectedTypes);
-              setDescription(item.desc);
-            }}
-          >
-            {item.label}
-          </button>
-        ))}
+      <div className="mb-4">
+        <h2 className="font-semibold mb-2">What else would you like to plant?</h2>
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+          {categories.map((item) => (
+            <button
+              key={item.id}
+              onClick={() => {
+                toggleSelection(item.id, selectedTypes, setSelectedTypes);
+                setDescription(item.desc);
+              }}
+              className={`p-2 rounded border text-sm ${
+                selectedTypes.includes(item.id)
+                  ? 'bg-green-500 text-white'
+                  : 'bg-white text-gray-700'
+              }`}
+            >
+              {item.label}
+            </button>
+          ))}
+        </div>
       </div>
 
-      <h2 className="font-semibold mt-6 mb-2">What life cycles do you prefer?</h2>
-      <div className="grid grid-cols-2 gap-2 mb-4">
-        {lifeCycles.map((item) => (
-          <button
-            key={item.id}
-            className={`p-2 border rounded text-sm ${
-              selectedCycles.includes(item.id) ? 'bg-green-500 text-white' : ''
-            }`}
-            onClick={() => {
-              toggle(item.id, selectedCycles, setSelectedCycles);
-              setDescription(item.desc);
-            }}
-          >
-            {item.label}
-          </button>
-        ))}
+      <div className="mb-4 mt-6">
+        <h2 className="font-semibold mb-2">What life cycles do you prefer?</h2>
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+          {lifeCycles.map((item) => (
+            <button
+              key={item.id}
+              onClick={() => {
+                toggleSelection(item.id, selectedCycles, setSelectedCycles);
+                setDescription(item.desc);
+              }}
+              className={`p-2 rounded border text-sm ${
+                selectedCycles.includes(item.id)
+                  ? 'bg-green-500 text-white'
+                  : 'bg-white text-gray-700'
+              }`}
+            >
+              {item.label}
+            </button>
+          ))}
+        </div>
       </div>
 
       {description && (
-        <div className="text-sm text-gray-700 bg-yellow-100 p-3 rounded mb-4">
+        <div className="bg-yellow-100 text-gray-700 text-sm mt-4 p-3 rounded">
           {description}
         </div>
       )}
@@ -88,9 +96,9 @@ export default function PlotPreferences() {
       <button
         onClick={handleNext}
         disabled={selectedTypes.length === 0 && selectedCycles.length === 0}
-        className="mt-4 bg-green-600 text-white w-full py-2 rounded text-lg disabled:opacity-50"
+        className="mt-6 bg-green-600 text-white py-2 px-6 rounded disabled:opacity-50"
       >
-        Next
+        Continue
       </button>
     </div>
   );

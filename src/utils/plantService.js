@@ -21,3 +21,11 @@ export function savePlantForUser(plantData, userId) {
   const updated = [...existing, plantData];
   localStorage.setItem(`user-plants-${userId}`, JSON.stringify(updated));
 }
+
+export function getPlantSpacing(plant) {
+  const defaultSpacing = 18; // inches
+  const spacingStr = plant.spacing || plant.spacing_cm || '';
+
+  const inches = parseFloat(spacingStr.toString().split(' ')[0]) || defaultSpacing;
+  return inches / 12; // feet
+}
