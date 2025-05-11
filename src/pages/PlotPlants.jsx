@@ -1,3 +1,4 @@
+// src/pages/PlotPlants.jsx
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { fetchPlantsFromPerenual } from '../utils/api';
@@ -17,14 +18,19 @@ export default function PlotPlants() {
   useEffect(() => {
     const delay = setTimeout(async () => {
       if (search.length > 2) {
-        const data = await fetchPlantsFromPerenual(search);
-        setResults(data.slice(0, 10)); // limit results
+        try {
+          const data = await fetchPlantsFromPerenual(search);
+          setResults(data.slice(0, 10));
+        } catch (err) {
+          console.error('Search failed:', err);
+          setResults([]);
+        }
       } else {
         setResults([]);
       }
     }, 400);
     return () => clearTimeout(delay);
-  }, [search]); // Added 'search' to dependencies
+  }, [search]);
 
   const addPlant = (plant) => {
     setInventory((prev) => ({
@@ -60,7 +66,7 @@ export default function PlotPlants() {
             <div key={plant.id} className="flex justify-between items-center p-2 border rounded bg-white">
               <div>
                 <p className="font-semibold">{plant.common_name}</p>
-                <p className="text-sm text-gray-600 italic">{plant.scientific_name?.[0]}</p>
+                <p className="text-sm text-gray-600 italic">{plant.scientific_name?.[0] || '—'}</p>
               </div>
               <button
                 onClick={() => addPlant(plant)}
@@ -81,7 +87,8 @@ export default function PlotPlants() {
               <div key={plant.id} className="flex justify-between items-center p-2 border rounded bg-green-50">
                 <div>
                   <p className="font-semibold">{plant.common_name}</p>
-                  <p className="text-sm text-gray-600 italic">{plant.scientific_name || '—'}</p>                </div>
+                  <p className="text-sm text-gray-600 italic">{plant.scientific_name?.[0] || '—'}</p>
+                </div>
                 <button
                   onClick={() => addPlant(plant)}
                   className="bg-green-600 text-white px-3 py-1 rounded"
