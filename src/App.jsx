@@ -32,7 +32,7 @@ import PlotLayoutView from './pages/PlotLayoutView';
 import Profile from './pages/Profile';
 import Plants from './pages/Plants';
 import Login from './pages/Login';
-
+import CustomizePlot from './pages/CustomizePlot';
 
 // Import layout components
 import BottomNav from './components/BottomNav';
@@ -74,6 +74,7 @@ function AppWrapper() {
         <Route path="/plot-preferences" element={<PlotPreferences />} />
         <Route path="/plot-conditions" element={<PlotConditions />} />
         <Route path="/plot-loading" element={<PlotLoading />} />
+        <Route path="/plot-layout-view" element={<CustomizePlot />} />
         <Route path="/plot-layout-:layoutId" element={<PlotLayoutDetails />} />
         <Route path="/plant-detail/:plantName" element={<PlantDetail />} />
         <Route

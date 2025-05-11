@@ -29,3 +29,12 @@ export function getPlantSpacing(plant) {
   const inches = parseFloat(spacingStr.toString().split(' ')[0]) || defaultSpacing;
   return inches / 12; // feet
 }
+
+export async function fetchPlantSuggestions(query) {
+  const response = await fetch(`https://perenual.com/api/species-list?key=sk-6MvP68182f10946ed10233&q=${encodeURIComponent(query)}`);
+  const data = await response.json();
+  if (data && data.data) {
+    return data.data.map(p => p.common_name).filter(Boolean);
+  }
+  return [];
+}
